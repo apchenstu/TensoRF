@@ -1,7 +1,7 @@
 import torch
 import torch.nn
 import torch.nn.functional as F
-from sh import eval_sh_bases
+from .sh import eval_sh_bases
 import numpy as np
 import time
 

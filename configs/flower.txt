@@ -1,0 +1,32 @@
+
+dataset_name = llff
+datadir = ./data/nerf_llff_data/flower
+expname =  tensorf_flower
+basedir = ./log
+
+n_iters = 25000
+batch_size = 4096
+
+N_voxel_init = 2097156 # 128**3
+N_voxel_final = 262144000 # 640**3
+upsamp_list = [2000,3000,4000,5500]
+update_AlphaMask_list = [2500]
+
+N_vis = 5
+vis_every = 10000
+
+render_test = 1
+render_path = 1
+
+n_lamb_sigma = [16,4,4]
+n_lamb_sh = [48,12,12]
+
+shadingMode = MLP_Fea
+fea2denseAct = relu
+
+view_pe = 0
+fea_pe = 0
+
+TV_weight_density = 1.0
+TV_weight_app = 1.0
+

@@ -84,10 +84,11 @@ def reconstruction(args):
     ndc_ray = args.ndc_ray
 
     # init resolution
-    upsamp_list = json.loads(args.upsamp_list)
-    update_AlphaMask_list = json.loads(args.update_AlphaMask_list)
-    n_lamb_sigma = json.loads(args.n_lamb_sigma)
-    n_lamb_sh = json.loads(args.n_lamb_sh)
+    upsamp_list = args.upsamp_list
+    update_AlphaMask_list = args.update_AlphaMask_list
+    n_lamb_sigma = args.n_lamb_sigma
+    n_lamb_sh = args.n_lamb_sh
+
     
     if args.add_timestamp:
         logfolder = f'{args.basedir}/{args.expname}{datetime.datetime.now().strftime("-%Y%m%d-%H%M%S")}'

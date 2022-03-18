@@ -1,9 +1,9 @@
 # TensoRF
-## [Project page](https://apchenstu.github.io/TensoRF/) |  [Paper](https://arxiv.org/abs/2103.15595)
+## [Project page](https://apchenstu.github.io/TensoRF/) |  [Paper](https://arxiv.org/abs/2203.09517)
 This repository contains a pytorch implementation for the paper: [TensoRF: Tensorial Radiance Fields](https://arxiv.org/abs/2103.15595). Our work present a novel approach to model and reconstruct radiance fields, which achieves super
 **fast** training process, **compact** memory footprint and **state-of-the-art** rendering quality.<br><br>
 
-xxx.mp4
+https://github.com/apchenstu/apchenstu.github.io/blob/master/TensoRF/video/train_process.mp4
 
 ## Installation
 
@@ -26,12 +26,21 @@ pip install tqdm scikit-image opencv-python configargparse lpips imageio-ffmpeg
 
 
 
-## Training
-The training script is in `train.py`, we have provided command list in `run_batch.py` to reproduce our results, please note:
+## Quick Start
+The training script is in `train.py`, to train a TensoRF:
+
+```
+python train.py --config configs/lego.txt
+```
+
+
+we provide a few examples in the configuration folder, please note:
 
  `dataset_name`, choices = ['blender', 'llff', 'nsvf', 'dtu','tankstemple'];
 
  `shadingMode`, choices = ['MLP_PE', 'SH'];
+
+ `model_name`, choices = ['TensorVMSplit', 'TensorCP'], corresponding to the VM and CP decomposition;
 
  `n_lamb_sigma` and `n_lamb_sh` are string type refer to the basis number of density and appearance along XYZ
 dimension;
@@ -51,11 +60,24 @@ More options refer to the `opt.py`.
 
 
 ## Rendering
+
+```
+python train.py --config configs/lego.txt --ckpt path/to/your/checkpoint --render_only 1 --render_test 1
+```
+
 You can just simply pass `--render_only 1` and `--ckpt path/to/your/checkpoint` to render images from a pre-trained
-checkpoint.
+checkpoint. You may also need to specify what you want to render, like `--render_test 1`, `--render_train 1` or `--render_path 1`.
+The rendering results are located in your checkpoint folder.
 
 ## Citation
 If you find our code or paper helps, please consider citing:
 ```
-xxx
+@misc{TensoRF,
+      title={TensoRF: Tensorial Radiance Fields},
+      author={Anpei Chen and Zexiang Xu and Andreas Geiger and and Jingyi Yu and Hao Su},
+      year={2022},
+      eprint={2203.09517},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
 ```

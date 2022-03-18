@@ -31,9 +31,6 @@ class BlenderDataset(Dataset):
         self.center = torch.mean(self.scene_bbox, axis=0).float().view(1, 1, 3)
         self.radius = (self.scene_bbox[1] - self.center).float().view(1, 1, 3)
         self.downsample=downsample
-        # if device is not None:
-        #     self.all_rgbs = self.all_rgbs.to(device)
-        #     self.all_rays = self.all_rays.to(device)
 
     def read_depth(self, filename):
         depth = np.array(read_pfm(filename)[0], dtype=np.float32)  # (800, 800)
@@ -43,8 +40,6 @@ class BlenderDataset(Dataset):
 
         with open(os.path.join(self.root_dir, f"transforms_{self.split}.json"), 'r') as f:
             self.meta = json.load(f)
-#         with open(os.path.join(self.root_dir, f"transforms_train.json"), 'r') as f:
-#             self.meta = json.load(f)
 
         w, h = self.img_wh
         self.focal = 0.5 * 800 / np.tan(0.5 * self.meta['camera_angle_x'])  # original focal length
@@ -83,19 +78,10 @@ class BlenderDataset(Dataset):
             img = img.view(4, -1).permute(1, 0)  # (h*w, 4) RGBA
             img = img[:, :3] * img[:, -1:] + (1 - img[:, -1:])  # blend A to RGB
             self.all_rgbs += [img]
-    
-            # if self.split=='train':
-            #     depth = self.read_depth(os.path.join(self.root_dir, f"{frame['file_path']}_depth.pfm"))
-            #     depth = torch.from_numpy(cv2.resize(depth, self.img_wh))
-            #     self.all_depth += [depth]
+
 
             rays_o, rays_d = get_rays(self.directions, c2w)  # both (h*w, 3)
-            # vdirs = rays_d / torch.norm(rays_d, dim=-1, keepdim=True)
-            # t_minmax = aabb(rays_o, vdirs, self.scene_bbox)
-            self.all_rays += [torch.cat([rays_o, rays_d], 1)]  # (h*w, 8)
-#                                  self.near * torch.ones_like(rays_o[:, :1]),
-#                                  self.far * torch.ones_like(rays_o[:, :1])
-#             self.all_masks += []
+            self.all_rays += [torch.cat([rays_o, rays_d], 1)]  # (h*w, 6)
 
 
         self.poses = torch.stack(self.poses)
