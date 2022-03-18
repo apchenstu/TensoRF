@@ -4,6 +4,9 @@ datadir = ./data/nerf_llff_data/flower
 expname =  tensorf_flower
 basedir = ./log
 
+downsample_train = 4.0
+ndc_ray = 1
+
 n_iters = 25000
 batch_size = 4096
 
