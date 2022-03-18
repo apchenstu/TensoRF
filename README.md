@@ -3,8 +3,8 @@
 This repository contains a pytorch implementation for the paper: [TensoRF: Tensorial Radiance Fields](https://arxiv.org/abs/2103.15595). Our work present a novel approach to model and reconstruct radiance fields, which achieves super
 **fast** training process, **compact** memory footprint and **state-of-the-art** rendering quality.<br><br>
 
-https://github.com/apchenstu/apchenstu.github.io/blob/master/TensoRF/video/train_process.mp4
 
+https://user-images.githubusercontent.com/16453770/158920837-3fafaa17-6ed9-4414-a0b1-a80dc9e10301.mp4
 ## Installation
 
 #### Tested on Ubuntu 20.04 + Pytorch 1.10.1 
