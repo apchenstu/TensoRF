@@ -217,13 +217,6 @@ class TensorVMSplit(TensorBase):
                                             align_corners=True).view(-1, *xyz_sampled.shape[:1])
             sigma_feature = sigma_feature + torch.sum(plane_coef_point * line_coef_point, dim=0)
 
-            # if 0==idx_plane:
-            #     sigma_feature = sigma_feature + torch.sum((plane_coef_point * line_coef_point)[[10,  0,  6,  4]], dim=0)
-            # elif 1==idx_plane:
-            #     sigma_feature = sigma_feature + torch.sum((plane_coef_point * line_coef_point)[[7, 6, 5, 8]], dim=0)
-            # else:
-            #     sigma_feature = sigma_feature + torch.sum((plane_coef_point * line_coef_point)[[15, 12,  3,  9]], dim=0)
-
         return sigma_feature
 
 
@@ -312,8 +305,6 @@ class TensorVMSplit(TensorBase):
 
 
 
-
-
 class TensorCP(TensorBase):
     def __init__(self, aabb, gridSize, device, **kargs):
         super(TensorCP, self).__init__(aabb, gridSize, device, **kargs)
@@ -354,10 +345,6 @@ class TensorCP(TensorBase):
                                         align_corners=True).view(-1, *xyz_sampled.shape[:1])
         line_coef_point = line_coef_point * F.grid_sample(self.density_line[2], coordinate_line[[2]],
                                         align_corners=True).view(-1, *xyz_sampled.shape[:1])
-
-        # line_feats = F.grid_sample(self.line_coef[:, -self.density_n_comp:], coordinate_line, align_corners=True).view(
-        #                                 3, self.density_n_comp, *xyz_sampled.shape[:1])
-        
         sigma_feature = torch.sum(line_coef_point, dim=0)
         
         

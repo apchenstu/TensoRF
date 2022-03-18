@@ -143,36 +143,3 @@ def evaluation_path(test_dataset,tensorf, c2ws, renderer, savePath=None, N_vis=5
 
     return PSNRs
 
-def rgba_evaluation(test_dataset, grid_rgba, world2ndc, args, savePath=None, N_vis=5, prtx='', white_bg=False, N_samples=256):
-    PSNRs, rgb_maps = [], []
-    with torch.no_grad():
-        try:
-            tqdm._instances.clear()
-        except Exception:
-            pass
-
-        img_eval_interval = 1 if N_vis < 0 else test_dataset.all_rays.shape[0] // N_vis
-        idxs = list(range(0, test_dataset.all_rays.shape[0], img_eval_interval))
-        for idx, samples in tqdm(enumerate(test_dataset.all_rays[0::img_eval_interval])):
-
-            W, H = test_dataset.img_wh
-            rays = samples.view(-1, 8)
-
-            rgb_map, _, depth_map, _, _ = grid_rgba.render(rays, world2ndc, chunk=8192, lindisp=args.lindisp, perturb=0.0, white_bg = white_bg, N_samples=N_samples)
-            rgb_map = rgb_map.clamp(0.0, 1.0)
-
-            rgb_map, depth_map = rgb_map.reshape(H, W, 3).cpu(), depth_map.reshape(H, W).cpu()
-
-            depth_map, _ = visualize_depth_numpy(depth_map.numpy())
-            if len(test_dataset.all_rgbs):
-                loss = torch.mean((rgb_map - test_dataset.all_rgbs[idxs[idx]].view(H, W, 3)) ** 2)
-                PSNRs.append(-10.0 * np.log(loss.item()) / np.log(10.0))
-
-            rgb_map = (rgb_map.numpy() * 255).astype('uint8')
-            rgb_map = np.concatenate((rgb_map, depth_map), axis=1)
-            rgb_maps.append(rgb_map)
-            if savePath is not None:
-                imageio.imwrite(f'{savePath}/{prtx}{idx:03d}.png', rgb_map)
-
-        imageio.mimwrite(f'{savePath}/{prtx}_video.mp4', np.stack(rgb_maps), fps=30, quality=10)
-        return PSNRs

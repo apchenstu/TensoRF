@@ -272,7 +272,6 @@ class TensorBase(torch.nn.Module):
 
         rays_pts = rays_o[..., None, :] + rays_d[..., None, :] * interpx[..., None]
         mask_outbbox = ((self.aabb[0] > rays_pts) | (rays_pts > self.aabb[1])).any(dim=-1)
-        # print(rays_pts.shape, interpx.shape, mask_outbbox.shape, N_samples)
         return rays_pts, interpx, ~mask_outbbox
 
     def sample_ray(self, rays_o, rays_d, is_train=True, N_samples=-1):
@@ -305,16 +304,13 @@ class TensorBase(torch.nn.Module):
 
         total_voxels = gridSize[0] * gridSize[1] * gridSize[2]
 
-        # voxel_size = self.aabbSize / (torch.tensor(gridSize).to(self.device)-1)
-        # voxel_norm = torch.norm(voxel_size)
-
         samples = torch.stack(torch.meshgrid(
             torch.linspace(0, 1, gridSize[0]),
             torch.linspace(0, 1, gridSize[1]),
             torch.linspace(0, 1, gridSize[2]),
         ), -1).to(self.device)
         dense_xyz = self.aabb[0] * (1-samples) + self.aabb[1] * samples
-        # dense_xyz = dense_xyz.view(-1,3)
+
         dense_xyz = dense_xyz.transpose(0,2).contiguous()
         alpha = torch.zeros_like(dense_xyz[...,0])
         for i in range(gridSize[2]):
@@ -397,8 +393,7 @@ class TensorBase(torch.nn.Module):
             validsigma = self.feature2density(sigma_feature)
             sigma[alpha_mask] = validsigma
         
-        # density = F.grid_sample(grid_rgba.density_volume, dense_xyz.view(1,-1,1,1,3)).view(-1) *4/350*25
-        # print(density.shape)
+
         alpha = 1 - torch.exp(-sigma*length).view(xyz_locs.shape[:-1])
 
         return alpha

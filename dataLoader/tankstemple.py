@@ -160,8 +160,6 @@ class TanksTempleDataset(Dataset):
             c2w = torch.FloatTensor(c2w)
             self.poses.append(c2w)  # C2W
             rays_o, rays_d = get_rays(self.directions, c2w)  # both (h*w, 3)
-            # vdirs = rays_d / torch.norm(rays_d, dim=-1, keepdim=True)
-            # t_minmax = aabb(rays_o, vdirs, self.scene_bbox)
             self.all_rays += [torch.cat([rays_o, rays_d], 1)]  # (h*w, 8)
 
         self.poses = torch.stack(self.poses)
@@ -169,7 +167,6 @@ class TanksTempleDataset(Dataset):
         center = torch.mean(self.scene_bbox, dim=0)
         radius = torch.norm(self.scene_bbox[1]-center)*1.2
         up = torch.mean(self.poses[:, :3, 1], dim=0).tolist()
-        # print(center,radius,up,-0.2*up[1])
         pos_gen = circle(radius=radius, h=-0.2*up[1], axis='y')
         self.render_path = gen_path(pos_gen, up=up,frames=200)
         self.render_path[:, :3, 3] += center

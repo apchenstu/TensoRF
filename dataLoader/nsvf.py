@@ -44,7 +44,7 @@ class NSVF(Dataset):
         self.define_transforms()
 
         self.white_bg = True
-        self.near_far = [0.5,5.0]
+        self.near_far = [0.5,6.0]
         self.scene_bbox = torch.from_numpy(np.loadtxt(f'{self.root_dir}/bbox.txt')).float()[:6].view(2,3)
         self.blender2opencv = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
         self.read_meta()
@@ -111,15 +111,10 @@ class NSVF(Dataset):
             c2w = torch.FloatTensor(c2w)
             self.poses.append(c2w)  # C2W
             rays_o, rays_d = get_rays(self.directions, c2w)  # both (h*w, 3)
-            # vdirs = rays_d / torch.norm(rays_d, dim=-1, keepdim=True)
-            # t_minmax = aabb(rays_o, vdirs, self.scene_bbox)
             self.all_rays += [torch.cat([rays_o, rays_d], 1)]  # (h*w, 8)
             
 #             w2c = torch.inverse(c2w)
-#             depth = (w2c[:3,:3] @corners.t() + w2c[:3,3:])[2]
-#             near_far = [max(0.0, torch.min(depth)), torch.max(depth)]
-#             print(near_far)
-
+#
 
         self.poses = torch.stack(self.poses)
         if 'train' == self.split:

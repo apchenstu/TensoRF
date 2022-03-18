@@ -291,9 +291,6 @@ if __name__ == '__main__':
     torch.set_default_dtype(torch.float32)
     torch.manual_seed(20121202)
     np.random.seed(20121202)
-    # torch.cuda.manual_seed(20121202)
-    # random.seed(20121202)
-    # torch.backends.cudnn.deterministic = True
 
     args = config_parser()
     print(args)
