@@ -38,7 +38,7 @@ we provide a few examples in the configuration folder, please note:
 
  `dataset_name`, choices = ['blender', 'llff', 'nsvf', 'dtu','tankstemple'];
 
- `shadingMode`, choices = ['MLP_PE', 'SH'];
+ `shadingMode`, choices = ['MLP_Fea', 'SH'];
 
  `model_name`, choices = ['TensorVMSplit', 'TensorCP'], corresponding to the VM and CP decomposition;
 
