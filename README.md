@@ -1,6 +1,6 @@
 # TensoRF
 ## [Project page](https://apchenstu.github.io/TensoRF/) |  [Paper](https://arxiv.org/abs/2203.09517)
-This repository contains a pytorch implementation for the paper: [TensoRF: Tensorial Radiance Fields](https://arxiv.org/abs/2103.15595). Our work present a novel approach to model and reconstruct radiance fields, which achieves super
+This repository contains a pytorch implementation for the paper: [TensoRF: Tensorial Radiance Fields](https://arxiv.org/abs/2203.09517). Our work present a novel approach to model and reconstruct radiance fields, which achieves super
 **fast** training process, **compact** memory footprint and **state-of-the-art** rendering quality.<br><br>
 
 
@@ -36,11 +36,12 @@ python train.py --config configs/lego.txt
 
 we provide a few examples in the configuration folder, please note:
 
- `dataset_name`, choices = ['blender', 'llff', 'nsvf', 'dtu','tankstemple'];
+ `dataset_name`, choices = ['blender', 'llff', 'nsvf', 'tankstemple'];
 
  `shadingMode`, choices = ['MLP_Fea', 'SH'];
 
- `model_name`, choices = ['TensorVMSplit', 'TensorCP'], corresponding to the VM and CP decomposition;
+ `model_name`, choices = ['TensorVMSplit', 'TensorCP'], corresponding to the VM and CP decomposition. 
+ You need to uncomment the last a few rows of the configuration file if you want to training with the TensorCP model；
 
  `n_lamb_sigma` and `n_lamb_sh` are string type refer to the basis number of density and appearance along XYZ
 dimension;

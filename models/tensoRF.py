@@ -303,16 +303,14 @@ class TensorVMSplit(TensorBase):
         self.update_stepSize((newSize[0], newSize[1], newSize[2]))
 
 
-
-
 class TensorCP(TensorBase):
     def __init__(self, aabb, gridSize, device, **kargs):
         super(TensorCP, self).__init__(aabb, gridSize, device, **kargs)
 
 
     def init_svd_volume(self, res, device):
-        self.density_line = self.init_one_svd(self.density_n_comp, self.gridSize, 0.2, device)
-        self.app_line = self.init_one_svd(self.app_n_comp, self.gridSize, 0.2, device)
+        self.density_line = self.init_one_svd(self.density_n_comp[0], self.gridSize, 0.2, device)
+        self.app_line = self.init_one_svd(self.app_n_comp[0], self.gridSize, 0.2, device)
         self.basis_mat = torch.nn.Linear(self.app_n_comp[0], self.app_dim, bias=False).to(device)
 
 
@@ -321,7 +319,7 @@ class TensorCP(TensorBase):
         for i in range(len(self.vecMode)):
             vec_id = self.vecMode[i]
             line_coef.append(
-                torch.nn.Parameter(scale * torch.randn((1, n_component[i], gridSize[vec_id], 1))))
+                torch.nn.Parameter(scale * torch.randn((1, n_component, gridSize[vec_id], 1))))
         return torch.nn.ParameterList(line_coef).to(device)
 
     

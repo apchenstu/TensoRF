@@ -29,3 +29,11 @@ fea_pe = 2
 L1_weight_inital = 8e-5
 L1_weight_rest = 4e-5
 rm_weight_mask_thre = 1e-4
+
+## please uncomment following configuration if hope to training on cp model
+#model_name = TensorCP
+#n_lamb_sigma = [96]
+#n_lamb_sh = [288]
+#N_voxel_final = 125000000 # 500**3
+#L1_weight_inital = 1e-5
+#L1_weight_rest = 1e-5
