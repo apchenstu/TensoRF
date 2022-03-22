@@ -1,7 +1,7 @@
 
 dataset_name = blender
 datadir = ./data/nerf_synthetic/lego
-expname =  tensorf_lego_CP
+expname =  tensorf_lego_VM
 basedir = ./log
 
 n_iters = 30000

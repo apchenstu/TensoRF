@@ -1,7 +1,7 @@
 
 dataset_name = nsvf
 datadir = ./data/Synthetic_NSVF/Wineholder
-expname =  tensorf_Wineholder
+expname =  tensorf_Wineholder_VM
 basedir = ./log
 
 n_iters = 30000
