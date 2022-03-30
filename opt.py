@@ -27,7 +27,7 @@ def config_parser(cmd=None):
     parser.add_argument("--n_iters", type=int, default=30000)
 
     parser.add_argument('--dataset_name', type=str, default='blender',
-                        choices=['blender', 'llff', 'nsvf', 'dtu','tankstemple'])
+                        choices=['blender', 'llff', 'nsvf', 'dtu','tankstemple', 'own_data'])
 
 
     # training options
@@ -63,7 +63,7 @@ def config_parser(cmd=None):
 
     parser.add_argument("--rm_weight_mask_thre", type=float, default=0.0001,
                         help='mask points in ray marching')
-    parser.add_argument("--alpha_mask_thre", type=float, default=0.08,
+    parser.add_argument("--alpha_mask_thre", type=float, default=0.0001,
                         help='threshold for creating alpha mask volume')
     parser.add_argument("--distance_scale", type=float, default=25,
                         help='scaling sampling distance for computation')
@@ -90,6 +90,7 @@ def config_parser(cmd=None):
     parser.add_argument("--render_test", type=int, default=0)
     parser.add_argument("--render_train", type=int, default=0)
     parser.add_argument("--render_path", type=int, default=0)
+    parser.add_argument("--export_mesh", type=int, default=0)
 
     # rendering options
     parser.add_argument('--lindisp', default=False, action="store_true",

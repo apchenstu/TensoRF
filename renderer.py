@@ -34,7 +34,7 @@ def evaluation(test_dataset,tensorf, args, renderer, savePath=None, N_vis=5, prt
         pass
 
     near_far = test_dataset.near_far
-    img_eval_interval = 1 if N_vis < 0 else test_dataset.all_rays.shape[0] // N_vis
+    img_eval_interval = 1 if N_vis < 0 else max(test_dataset.all_rays.shape[0] // N_vis,1)
     idxs = list(range(0, test_dataset.all_rays.shape[0], img_eval_interval))
     for idx, samples in tqdm(enumerate(test_dataset.all_rays[0::img_eval_interval]), file=sys.stdout):
 

@@ -138,7 +138,7 @@ class MLPRender(torch.nn.Module):
 class TensorBase(torch.nn.Module):
     def __init__(self, aabb, gridSize, device, density_n_comp = 8, appearance_n_comp = 24, app_dim = 27,
                     shadingMode = 'MLP_PE', alphaMask = None, near_far=[2.0,6.0],
-                    density_shift = -10, alphaMask_thres=0.08, distance_scale=25, rayMarch_weight_thres=0.0001,
+                    density_shift = -10, alphaMask_thres=0.001, distance_scale=25, rayMarch_weight_thres=0.0001,
                     pos_pe = 6, view_pe = 6, fea_pe = 6, featureC=128, step_ratio=2.0,
                     fea2denseAct = 'softplus'):
         super(TensorBase, self).__init__()
@@ -300,9 +300,8 @@ class TensorBase(torch.nn.Module):
         pass
 
     @torch.no_grad()
-    def updateAlphaMask(self, gridSize=(200,200,200)):
-
-        total_voxels = gridSize[0] * gridSize[1] * gridSize[2]
+    def getDenseAlpha(self,gridSize=None):
+        gridSize = self.gridSize if gridSize is None else gridSize
 
         samples = torch.stack(torch.meshgrid(
             torch.linspace(0, 1, gridSize[0]),
@@ -311,12 +310,20 @@ class TensorBase(torch.nn.Module):
         ), -1).to(self.device)
         dense_xyz = self.aabb[0] * (1-samples) + self.aabb[1] * samples
 
-        dense_xyz = dense_xyz.transpose(0,2).contiguous()
+        # dense_xyz = dense_xyz
+        # print(self.stepSize, self.distance_scale*self.aabbDiag)
         alpha = torch.zeros_like(dense_xyz[...,0])
-        for i in range(gridSize[2]):
-            alpha[i] = self.compute_alpha(dense_xyz[i].view(-1,3), self.distance_scale*self.aabbDiag).view((gridSize[1], gridSize[0]))
-        alpha = alpha.clamp(0,1)[None,None]
+        for i in range(gridSize[0]):
+            alpha[i] = self.compute_alpha(dense_xyz[i].view(-1,3), self.stepSize).view((gridSize[1], gridSize[2]))
+        return alpha, dense_xyz
 
+    @torch.no_grad()
+    def updateAlphaMask(self, gridSize=(200,200,200)):
+
+        alpha, dense_xyz = self.getDenseAlpha(gridSize)
+        dense_xyz = dense_xyz.transpose(0,2).contiguous()
+        alpha = alpha.clamp(0,1).transpose(0,2).contiguous()[None,None]
+        total_voxels = gridSize[0] * gridSize[1] * gridSize[2]
 
         ks = 3
         alpha = F.max_pool3d(alpha, kernel_size=ks, padding=ks // 2, stride=1).view(gridSize[::-1])

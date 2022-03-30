@@ -14,7 +14,7 @@ Install environment:
 conda create -n TensoRF python=3.8
 conda activate TensoRF
 pip install torch torchvision
-pip install tqdm scikit-image opencv-python configargparse lpips imageio-ffmpeg
+pip install tqdm scikit-image opencv-python configargparse lpips imageio-ffmpeg kornia lpips tensorboard
 ```
 
 
@@ -50,7 +50,6 @@ dimension;
 
  `N_vis` and `vis_every` control the visualization during training;
 
-
   You need to set `--render_test 1`/`--render_path 1` if you want to render testing views or path after training. 
 
 More options refer to the `opt.py`. 
@@ -63,12 +62,19 @@ More options refer to the `opt.py`.
 ## Rendering
 
 ```
-python train.py --config configs/lego.txt --ckpt path/to/your/checkpoint --render_only 1 --render_test 1
+python train.py --config configs/lego.txt --ckpt path/to/your/checkpoint --render_only 1 --render_test 1 --export_mesh 1
 ```
 
 You can just simply pass `--render_only 1` and `--ckpt path/to/your/checkpoint` to render images from a pre-trained
 checkpoint. You may also need to specify what you want to render, like `--render_test 1`, `--render_train 1` or `--render_path 1`.
-The rendering results are located in your checkpoint folder.
+The rendering results are located in your checkpoint folder. You can also export the mesh by passing `--export_mesh 1`.
+
+## Training with your own data
+We provide two options for training on you own image set:
+
+1. Following the instructions in the [NSVF repo](https://github.com/facebookresearch/NSVF#prepare-your-own-dataset), then set the dataset_name to 'tankstemple'.
+2. Calibrating images with the script from [NGP](https://github.com/NVlabs/instant-ngp/blob/master/docs/nerf_dataset_tips.md), then adjust the datadir in `configs/your_own_data.txt`.
+   Please check the `scene_bbox` and `near_far` if you get abnormal results.
 
 ## Citation
 If you find our code or paper helps, please consider citing:

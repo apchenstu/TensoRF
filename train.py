@@ -37,6 +37,19 @@ class SimpleSampler:
 
 
 @torch.no_grad()
+def export_mesh(args):
+
+    ckpt = torch.load(args.ckpt, map_location=device)
+    kwargs = ckpt['kwargs']
+    kwargs.update({'device': device})
+    tensorf = eval(args.model_name)(**kwargs)
+    tensorf.load(ckpt)
+
+    alpha,_ = tensorf.getDenseAlpha()
+    convert_sdf_samples_to_ply(alpha.cpu(), f'{args.ckpt[:-3]}.ply',bbox=tensorf.aabb.cpu(), level=0.005)
+
+
+@torch.no_grad()
 def render_test(args):
     # init dataset
     dataset = dataset_dict[args.dataset_name]
@@ -220,7 +233,7 @@ def reconstruction(args):
             PSNRs = []
 
 
-        if iteration % args.vis_every == args.vis_every - 1:
+        if iteration % args.vis_every == args.vis_every - 1 and args.N_vis!=0:
             PSNRs_test = evaluation(test_dataset,tensorf, args, renderer, f'{logfolder}/imgs_vis/', N_vis=args.N_vis,
                                     prtx=f'{iteration:06d}_', N_samples=nSamples, white_bg = white_bg, ndc_ray=ndc_ray, compute_extra_metrics=False)
             summary_writer.add_scalar('test/psnr', np.mean(PSNRs_test), global_step=iteration)
@@ -294,6 +307,9 @@ if __name__ == '__main__':
 
     args = config_parser()
     print(args)
+
+    if  args.export_mesh:
+        export_mesh(args)
 
     if args.render_only and (args.render_test or args.render_path):
         render_test(args)

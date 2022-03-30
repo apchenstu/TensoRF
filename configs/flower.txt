@@ -15,7 +15,7 @@ N_voxel_final = 262144000 # 640**3
 upsamp_list = [2000,3000,4000,5500]
 update_AlphaMask_list = [2500]
 
-N_vis = 5
+N_vis = -1 # vis all testing images
 vis_every = 10000
 
 render_test = 1
