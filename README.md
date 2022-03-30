@@ -73,8 +73,9 @@ The rendering results are located in your checkpoint folder. You can also export
 We provide two options for training on you own image set:
 
 1. Following the instructions in the [NSVF repo](https://github.com/facebookresearch/NSVF#prepare-your-own-dataset), then set the dataset_name to 'tankstemple'.
-2. Calibrating images with the script from [NGP](https://github.com/NVlabs/instant-ngp/blob/master/docs/nerf_dataset_tips.md), then adjust the datadir in `configs/your_own_data.txt`.
-   Please check the `scene_bbox` and `near_far` if you get abnormal results.
+2. Calibrating images with the script from [NGP](https://github.com/NVlabs/instant-ngp/blob/master/docs/nerf_dataset_tips.md):
+`python dataLoader/colmap2nerf.py --colmap_matcher exhaustive --run_colmap`, then adjust the datadir in `configs/your_own_data.txt`. Please check the `scene_bbox` and `near_far` if you get abnormal results.
+    
 
 ## Citation
 If you find our code or paper helps, please consider citing:
