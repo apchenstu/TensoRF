@@ -67,10 +67,16 @@ python train.py --config configs/lego.txt --ckpt path/to/your/checkpoint --rende
 
 You can just simply pass `--render_only 1` and `--ckpt path/to/your/checkpoint` to render images from a pre-trained
 checkpoint. You may also need to specify what you want to render, like `--render_test 1`, `--render_train 1` or `--render_path 1`.
-The rendering results are located in your checkpoint folder. You can also export the mesh by passing `--export_mesh 1`.
+The rendering results are located in your checkpoint folder. 
+
+## Extracting mesh
+You can also export the mesh by passing `--export_mesh 1`:
+```
+python train.py --config configs/lego.txt --ckpt path/to/your/checkpoint --export_mesh 1
+```
 
 ## Training with your own data
-We provide two options for training on you own image set:
+We provide two options for training on your own image set:
 
 1. Following the instructions in the [NSVF repo](https://github.com/facebookresearch/NSVF#prepare-your-own-dataset), then set the dataset_name to 'tankstemple'.
 2. Calibrating images with the script from [NGP](https://github.com/NVlabs/instant-ngp/blob/master/docs/nerf_dataset_tips.md):
