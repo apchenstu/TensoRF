@@ -1,0 +1,16 @@
+# To run: conda env create -f environment.yml
+name: TensoRF
+channels:
+  - defaults
+dependencies:
+  - python=3.7
+  - pip
+  - pip:
+    - configargparse
+    - imageio-ffmpeg
+    - kornia
+    - lpips
+    - opencv-python
+    - scikit-image
+    - tensorboard
+    - tqdm  
