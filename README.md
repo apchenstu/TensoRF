@@ -55,14 +55,14 @@ dimension;
 More options refer to the `opt.py`. 
 
 ### For pretrained checkpoints and results please see:
-[https://1drv.ms/u/s!Ard0t_p4QWIMgQ2qSEAs7MUk8hVw?e=dc6hBm](https://1drv.ms/u/s!Ard0t_p4QWIMgQ2qSEAs7MUk8hVw?e=dc6hBm),
+[https://1drv.ms/u/s!Ard0t_p4QWIMgQ2qSEAs7MUk8hVw?e=dc6hBm](https://1drv.ms/u/s!Ard0t_p4QWIMgQ2qSEAs7MUk8hVw?e=dc6hBm)
 
 
 
 ## Rendering
 
 ```
-python train.py --config configs/lego.txt --ckpt path/to/your/checkpoint --render_only 1 --render_test 1 --export_mesh 1
+python train.py --config configs/lego.txt --ckpt path/to/your/checkpoint --render_only 1 --render_test 1 
 ```
 
 You can just simply pass `--render_only 1` and `--ckpt path/to/your/checkpoint` to render images from a pre-trained
@@ -74,6 +74,8 @@ You can also export the mesh by passing `--export_mesh 1`:
 ```
 python train.py --config configs/lego.txt --ckpt path/to/your/checkpoint --export_mesh 1
 ```
+Note: Please re-train the model and don't use the pretrained checkpoints provided by us for mesh extraction, 
+because some render parameters has changed.
 
 ## Training with your own data
 We provide two options for training on your own image set:
