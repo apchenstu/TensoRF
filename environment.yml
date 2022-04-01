@@ -1,9 +1,8 @@
-# To run: conda env create -f environment.yml
 name: TensoRF
 channels:
   - defaults
 dependencies:
-  - python=3.7
+  - python=3.8
   - pip
   - pip:
     - configargparse
