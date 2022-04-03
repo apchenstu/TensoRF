@@ -12,4 +12,6 @@ dependencies:
     - opencv-python
     - scikit-image
     - tensorboard
+    - torch
+    - torchvision
     - tqdm  
