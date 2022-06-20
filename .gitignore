@@ -1,0 +1,4 @@
+data
+Pipfile*
+__pycache__
+.vscode
