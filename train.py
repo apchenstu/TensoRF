@@ -261,7 +261,8 @@ def reconstruction(args):
                 allrays,allrgbs = tensorf.filtering_rays(allrays,allrgbs)
                 trainingSampler = SimpleSampler(allrgbs.shape[0], args.batch_size)
 
-
+        # potential hyper parameter tuning
+        # Gradually increase from initial to final voxel count
         if iteration in upsamp_list:
             n_voxels = N_voxel_list.pop(0)
             reso_cur = N_to_reso(n_voxels, tensorf.aabb)
