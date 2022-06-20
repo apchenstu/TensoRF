@@ -312,11 +312,14 @@ class TensorBase(torch.nn.Module):
 
         # dense_xyz = dense_xyz
         # print(self.stepSize, self.distance_scale*self.aabbDiag)
+        # computes the mask that prunes the model (How?)
         alpha = torch.zeros_like(dense_xyz[...,0])
         for i in range(gridSize[0]):
             alpha[i] = self.compute_alpha(dense_xyz[i].view(-1,3), self.stepSize).view((gridSize[1], gridSize[2]))
         return alpha, dense_xyz
 
+    # triggered every thousand training iterations
+    # reduce model size
     @torch.no_grad()
     def updateAlphaMask(self, gridSize=(200,200,200)):
 

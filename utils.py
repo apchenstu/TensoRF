@@ -50,9 +50,11 @@ def visualize_depth(depth, minmax=None, cmap=cv2.COLORMAP_JET):
     x_ = T.ToTensor()(x_)  # (3, H, W)
     return x_, [mi,ma]
 
+# params: bounding box and number of voxels
+# returns: number of voxels in each axis
 def N_to_reso(n_voxels, bbox):
     xyz_min, xyz_max = bbox
-    voxel_size = ((xyz_max - xyz_min).prod() / n_voxels).pow(1 / 3)
+    voxel_size = ((xyz_max - xyz_min).prod() / n_voxels).pow(1 / 3) # size of one axis of each voxel
     return ((xyz_max - xyz_min) / voxel_size).long().tolist()
 
 def cal_n_samples(reso, step_ratio=0.5):

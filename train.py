@@ -173,9 +173,10 @@ def reconstruction(args):
 
 
     pbar = tqdm(range(args.n_iters), miniters=args.progress_refresh_rate, file=sys.stdout)
+
+    # Main training loop
     for iteration in pbar:
-
-
+        # sample image ray pair to train on (could batch this process)
         ray_idx = trainingSampler.nextids()
         rays_train, rgb_train = allrays[ray_idx], allrgbs[ray_idx].to(device)
 
@@ -183,8 +184,8 @@ def reconstruction(args):
         rgb_map, alphas_map, depth_map, weights, uncertainty = renderer(rays_train, tensorf, chunk=args.batch_size,
                                 N_samples=nSamples, white_bg = white_bg, ndc_ray=ndc_ray, device=device, is_train=True)
 
+        # The primary loss is MSE of the rendered image vs the ground truth
         loss = torch.mean((rgb_map - rgb_train) ** 2)
-
 
         # loss
         total_loss = loss
@@ -208,17 +209,20 @@ def reconstruction(args):
             total_loss = total_loss + loss_tv
             summary_writer.add_scalar('train/reg_tv_app', loss_tv.detach().item(), global_step=iteration)
 
+        # backprop step that optimizes the radiance field model
         optimizer.zero_grad()
         total_loss.backward()
         optimizer.step()
 
+        # detach loss from gradiant graph and converts it to a float
         loss = loss.detach().item()
         
+        # logging
         PSNRs.append(-10.0 * np.log(loss) / np.log(10.0))
         summary_writer.add_scalar('train/PSNR', PSNRs[-1], global_step=iteration)
         summary_writer.add_scalar('train/mse', loss, global_step=iteration)
 
-
+        # update learning rate
         for param_group in optimizer.param_groups:
             param_group['lr'] = param_group['lr'] * lr_factor
 
@@ -239,7 +243,7 @@ def reconstruction(args):
             summary_writer.add_scalar('test/psnr', np.mean(PSNRs_test), global_step=iteration)
 
 
-
+        # Every few thousand  iterations mask voxel representation to lower memory consumption
         if iteration in update_AlphaMask_list:
 
             if reso_cur[0] * reso_cur[1] * reso_cur[2]<256**3:# update volume resolution
