@@ -88,12 +88,10 @@ We provide two options for training on your own image set:
 ## Citation
 If you find our code or paper helps, please consider citing:
 ```
-@misc{TensoRF,
-      title={TensoRF: Tensorial Radiance Fields},
-      author={Anpei Chen and Zexiang Xu and Andreas Geiger and and Jingyi Yu and Hao Su},
-      year={2022},
-      eprint={2203.09517},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@article{tensorf,
+  title={TensoRF: Tensorial Radiance Fields},
+  author={Chen, Anpei and Xu, Zexiang and Geiger, Andreas and Yu, Jingyi and Su, Hao},
+  journal={arXiv preprint arXiv:2203.09517},
+  year={2022}
 }
 ```
