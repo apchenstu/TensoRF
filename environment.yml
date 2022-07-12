@@ -1,0 +1,17 @@
+name: TensoRF
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+    - configargparse
+    - imageio-ffmpeg
+    - kornia
+    - lpips
+    - opencv-python
+    - scikit-image
+    - tensorboard
+    - torch
+    - torchvision
+    - tqdm  

@@ -11,10 +11,8 @@ https://user-images.githubusercontent.com/16453770/158920837-3fafaa17-6ed9-4414-
 
 Install environment:
 ```
-conda create -n TensoRF python=3.8
+conda env create -f environment.yml
 conda activate TensoRF
-pip install torch torchvision
-pip install tqdm scikit-image opencv-python configargparse lpips imageio-ffmpeg kornia lpips tensorboard
 ```
 
 
