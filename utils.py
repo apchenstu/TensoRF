@@ -4,6 +4,8 @@ from PIL import Image
 import torchvision.transforms as T
 import torch.nn.functional as F
 import scipy.signal
+from tqdm import tqdm
+import open3d as o3d
 
 mse2psnr = lambda x : -10. * torch.log(x) / torch.log(torch.Tensor([10.]))
 
@@ -219,3 +221,81 @@ def convert_sdf_samples_to_ply(
     ply_data = plyfile.PlyData([el_verts, el_faces])
     print("saving mesh to %s" % (ply_filename_out))
     ply_data.write(ply_filename_out)
+
+
+@torch.no_grad()
+def convert_sdf_samples_to_color_ply(args, tensorf, device, mesh_ply_filename_in, ply_filename_out):
+
+    # export color
+    mesh = o3d.io.read_triangle_mesh(mesh_ply_filename_in)
+    # remove noise
+    print('Removing noise ...')
+    face = np.empty(len(mesh.triangles), dtype=[('vertex_indices', 'i4', (3,))])
+    face['vertex_indices'] = mesh.triangles
+    idxs, count, _ = mesh.cluster_connected_triangles()
+    max_cluster_idx = np.argmax(count)
+    triangles_to_remove = [i for i in range(len(face)) if idxs[i] != max_cluster_idx]
+    mesh.remove_triangles_by_index(triangles_to_remove)
+    mesh.remove_unreferenced_vertices()
+
+    # face = np.empty(len(mesh.triangles), dtype=[('vertex_indices', 'i4', (3,))])
+    # face['vertex_indices'] = mesh.triangles
+    # vertices_ = np.asarray(mesh.vertices).astype(np.float32)
+    # vertices_.dtype = [('x', 'f4'), ('y', 'f4'), ('z', 'f4')]
+    # PlyData([PlyElement.describe(vertices_[:, 0], 'vertex'),
+    #         PlyElement.describe(face, 'face')]).write(os.path.join(mesh_dir, f'{"mesh-denoise"}.ply'))
+    # print("mesh denoise generated mesh-denoise.ply")
+
+    vertices_ = np.asarray(mesh.vertices).astype(np.float32)
+    mesh.compute_vertex_normals()
+    dir_ = np.asarray(mesh.vertex_normals)
+
+    # x_ = vertices_[:, 1].copy()
+    # y_ = vertices_[:, 0].copy()
+    # vertices_[:, 0] = x_
+    # vertices_[:, 1] = y_
+
+    x_ = dir_[:, 1].copy()
+    y_ = dir_[:, 0].copy()
+    dir_[:, 0] = x_
+    dir_[:, 1] = y_
+
+    # perform color prediction
+    N_vertices = len(vertices_)
+    rays_d_total = torch.FloatTensor(dir_)
+    rays_o_total = ((torch.FloatTensor(vertices_) - tensorf.aabb[0].cpu()) / (tensorf.aabb[1].cpu() - tensorf.aabb[0].cpu())) * 2 - 1
+
+    rays_o_total = rays_o_total.to(device)
+    rays_d_total = rays_d_total.to(device)
+
+    img = []
+    alpha = []
+    for start in tqdm(range(0, N_vertices, args.batch_size)):
+        with torch.no_grad():
+            rays_o = rays_o_total[start:start+args.batch_size]
+            rays_d = rays_d_total[start:start+args.batch_size]
+
+            # inference model
+            rgb = torch.zeros_like(rays_o).to(device)
+            rgb = tensorf.compute_rgb(rays_o, rays_d)
+            a = tensorf.compute_alpha_(rays_o, tensorf.stepSize)
+            img += [rgb.cpu().numpy()]
+            alpha += [a.cpu().numpy()]
+    
+    img = np.concatenate(img, 0)
+    alpha = np.concatenate(alpha, 0)
+    img = img + np.array([0, 0, 0]) * (1 - alpha[:, np.newaxis])
+    img = (img * 255 + 0.5).clip(0, 255).astype('uint8')
+    img.dtype = [('red', 'u1'), ('green', 'u1'), ('blue', 'u1')]
+    vertices_ = np.asarray(vertices_)
+    vertices_.dtype = [('x', 'f4'), ('y', 'f4'), ('z', 'f4')]
+    vertex_all = np.empty(N_vertices, vertices_.dtype.descr + img.dtype.descr)
+    for prop in vertices_.dtype.names:
+        vertex_all[prop] = vertices_[prop][:, 0]
+    for prop in img.dtype.names:
+        vertex_all[prop] = img[prop][:, 0]
+    face = np.empty(len(mesh.triangles), dtype=[('vertex_indices', 'i4', (3,))])
+    face['vertex_indices'] = mesh.triangles
+    plyfile.PlyData([plyfile.PlyElement.describe(vertex_all, 'vertex'),
+             plyfile.PlyElement.describe(face, 'face')]).write(ply_filename_out)
+    print("mesh color generated mesh-color.ply")

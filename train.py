@@ -47,6 +47,7 @@ def export_mesh(args):
 
     alpha,_ = tensorf.getDenseAlpha()
     convert_sdf_samples_to_ply(alpha.cpu(), f'{args.ckpt[:-3]}.ply',bbox=tensorf.aabb.cpu(), level=0.005)
+    convert_sdf_samples_to_color_ply(args, tensorf, device, f'{args.ckpt[:-3]}.ply', f'{args.ckpt[:-3]}_color.ply')
 
 
 @torch.no_grad()
@@ -310,6 +311,7 @@ if __name__ == '__main__':
 
     if  args.export_mesh:
         export_mesh(args)
+        exit()
 
     if args.render_only and (args.render_test or args.render_path):
         render_test(args)

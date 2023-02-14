@@ -406,6 +406,41 @@ class TensorBase(torch.nn.Module):
         return alpha
 
 
+    def compute_alpha_(self, xyz_locs, length=1):
+        sigma_feature = self.compute_densityfeature(xyz_locs)
+        sigma = self.feature2density(sigma_feature)
+
+        alpha = 1 - torch.exp(-sigma*length).view(xyz_locs.shape[:-1])
+        return alpha
+
+    def compute_rgb(self, xyz_locs, viewdirs):
+        app_features = self.compute_appfeature(xyz_locs)
+        rgbs = self.renderModule(xyz_locs, viewdirs, app_features)
+        
+        return rgbs
+
+    def compute_sigma_vertices(self, rays_o, rays_d, near, far, N_sample):
+        # 获取rays_d射线的点
+        xyz_sampled, z_vals, ray_valid = self.sample_ray_img(rays_o, rays_d, near, far, N_sample=N_sample)
+        
+        if self.alphaMask is not None:
+            alphas = self.alphaMask.sample_alpha(xyz_sampled[ray_valid])
+            alpha_mask = alphas > 0
+            ray_valid = ~ray_valid
+            ray_valid[ray_valid] |= (~alpha_mask)
+            ray_valid = ~ray_valid
+
+        sigma = torch.zeros(xyz_sampled.shape[:-1], device=xyz_sampled.device)
+        if ray_valid.any():
+            xyz_sampled = self.normalize_coord(xyz_sampled)
+            sigma_feature = self.compute_densityfeature(xyz_sampled[ray_valid])
+
+            validsigma = self.feature2density(sigma_feature)
+            sigma[ray_valid] = validsigma
+        
+        return torch.sum(sigma, 1)
+
+
     def forward(self, rays_chunk, white_bg=True, is_train=False, ndc_ray=False, N_samples=-1):
 
         # sample points
