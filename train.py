@@ -179,11 +179,12 @@ def reconstruction(args):
         nvtx.range_push(f'Iteration {iteration}')
         ray_idx = trainingSampler.nextids()
         rays_train, rgb_train = allrays[ray_idx], allrgbs[ray_idx].to(device)
-
+        nvtx.range_push("Sampling rays")
         #rgb_map, alphas_map, depth_map, weights, uncertainty
         rgb_map, alphas_map, depth_map, weights, uncertainty = renderer(rays_train, tensorf, chunk=args.batch_size,
                                 N_samples=nSamples, white_bg = white_bg, ndc_ray=ndc_ray, device=device, is_train=True)
-
+        nvtx.range_pop()
+        nvtx.range_push("Compute loss")
         loss = torch.mean((rgb_map - rgb_train) ** 2)
 
 
@@ -208,11 +209,14 @@ def reconstruction(args):
             loss_tv = tensorf.TV_loss_app(tvreg)*TV_weight_app
             total_loss = total_loss + loss_tv
             summary_writer.add_scalar('train/reg_tv_app', loss_tv.detach().item(), global_step=iteration)
-
+        nvtx.range_pop()
+        nvtx.range_push("backward pass")
         optimizer.zero_grad()
         total_loss.backward()
+        nvtx.range_pop()
+        nvtx.range_push("optimizer step")
         optimizer.step()
-
+        nvtx.range_pop()
         loss = loss.detach().item()
         
         PSNRs.append(-10.0 * np.log(loss) / np.log(10.0))
