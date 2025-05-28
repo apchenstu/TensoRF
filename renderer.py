@@ -4,10 +4,11 @@ from dataLoader.ray_utils import get_rays
 from models.tensoRF import TensorVM, TensorCP, raw2alpha, TensorVMSplit, AlphaGridMask
 from utils import *
 from dataLoader.ray_utils import ndc_rays_blender
+import torch.cuda.nvtx as nvtx
 
 
 def OctreeRender_trilinear_fast(rays, tensorf, chunk=4096, N_samples=-1, ndc_ray=False, white_bg=True, is_train=False, device='cuda'):
-
+    nvtx.range_push("OctreeRender_trilinear_fast")
     rgbs, alphas, depth_maps, weights, uncertainties = [], [], [], [], []
     N_rays_all = rays.shape[0]
     for chunk_idx in range(N_rays_all // chunk + int(N_rays_all % chunk > 0)):
@@ -17,7 +18,7 @@ def OctreeRender_trilinear_fast(rays, tensorf, chunk=4096, N_samples=-1, ndc_ray
 
         rgbs.append(rgb_map)
         depth_maps.append(depth_map)
-    
+    nvtx.range_pop()
     return torch.cat(rgbs), None, torch.cat(depth_maps), None, None
 
 @torch.no_grad()
