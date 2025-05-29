@@ -9,6 +9,7 @@ import json, random
 from renderer import *
 from utils import *
 from torch.utils.tensorboard import SummaryWriter
+import torch.cuda.nvtx as nvtx
 import datetime
 
 from dataLoader import dataset_dict
@@ -174,11 +175,15 @@ def reconstruction(args):
 
     pbar = tqdm(range(args.n_iters), miniters=args.progress_refresh_rate, file=sys.stdout)
     for iteration in pbar:
+
+        nvtx.range_push(f'Iteration {iteration}')
         ray_idx = trainingSampler.nextids()
         rays_train, rgb_train = allrays[ray_idx], allrgbs[ray_idx].to(device)
+
         #rgb_map, alphas_map, depth_map, weights, uncertainty
         rgb_map, alphas_map, depth_map, weights, uncertainty = renderer(rays_train, tensorf, chunk=args.batch_size,
                                 N_samples=nSamples, white_bg = white_bg, ndc_ray=ndc_ray, device=device, is_train=True)
+
         loss = torch.mean((rgb_map - rgb_train) ** 2)
 
 
@@ -206,8 +211,8 @@ def reconstruction(args):
 
         optimizer.zero_grad()
         total_loss.backward()
-
         optimizer.step()
+
         loss = loss.detach().item()
         
         PSNRs.append(-10.0 * np.log(loss) / np.log(10.0))
@@ -267,6 +272,7 @@ def reconstruction(args):
                 lr_scale = args.lr_decay_target_ratio ** (iteration / args.n_iters)
             grad_vars = tensorf.get_optparam_groups(args.lr_init*lr_scale, args.lr_basis*lr_scale)
             optimizer = torch.optim.Adam(grad_vars, betas=(0.9, 0.99))
+        nvtx.range_pop()
 
     tensorf.save(f'{logfolder}/{args.expname}.th')
 
