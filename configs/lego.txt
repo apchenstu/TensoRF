@@ -5,7 +5,7 @@ expname =  tensorf_lego_VM
 basedir = ./log
 
 n_iters = 3
-batch_size = 4096
+batch_size = 2048
 
 N_voxel_init = 2097156 # 128**3
 N_voxel_final = 27000000 # 300**3

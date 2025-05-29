@@ -88,14 +88,15 @@ def render_test(args):
                                 N_vis=-1, N_samples=-1, white_bg = white_bg, ndc_ray=ndc_ray,device=device)
 
 def reconstruction(args):
-
     # init dataset
+    nvtx.range_push('init dataset')
     dataset = dataset_dict[args.dataset_name]
     train_dataset = dataset(args.datadir, split='train', downsample=args.downsample_train, is_stack=False)
     test_dataset = dataset(args.datadir, split='test', downsample=args.downsample_train, is_stack=True)
     white_bg = train_dataset.white_bg
     near_far = train_dataset.near_far
     ndc_ray = args.ndc_ray
+    nvtx.range_pop()
 
     # init resolution
     upsamp_list = args.upsamp_list
@@ -177,15 +178,17 @@ def reconstruction(args):
     for iteration in pbar:
 
         nvtx.range_push(f'Iteration {iteration}')
+        nvtx.range_push('Sampling rays')
         ray_idx = trainingSampler.nextids()
         rays_train, rgb_train = allrays[ray_idx], allrgbs[ray_idx].to(device)
-
+        nvtx.range_pop()
         #rgb_map, alphas_map, depth_map, weights, uncertainty
+        nvtx.range_push('Rendering rays')
         rgb_map, alphas_map, depth_map, weights, uncertainty = renderer(rays_train, tensorf, chunk=args.batch_size,
                                 N_samples=nSamples, white_bg = white_bg, ndc_ray=ndc_ray, device=device, is_train=True)
-
+        nvtx.range_pop()
+        nvtx.range_push('Loss computation')
         loss = torch.mean((rgb_map - rgb_train) ** 2)
-
 
         # loss
         total_loss = loss
@@ -208,11 +211,14 @@ def reconstruction(args):
             loss_tv = tensorf.TV_loss_app(tvreg)*TV_weight_app
             total_loss = total_loss + loss_tv
             summary_writer.add_scalar('train/reg_tv_app', loss_tv.detach().item(), global_step=iteration)
-
+        nvtx.range_pop()
+        nvtx.range_push('Backward Pass')
         optimizer.zero_grad()
         total_loss.backward()
+        nvtx.range_pop()
+        nvtx.range_push('Optimizer Step')
         optimizer.step()
-
+        nvtx.range_pop()
         loss = loss.detach().item()
         
         PSNRs.append(-10.0 * np.log(loss) / np.log(10.0))
@@ -235,8 +241,10 @@ def reconstruction(args):
 
 
         if iteration % args.vis_every == args.vis_every - 1 and args.N_vis!=0:
+            nvtx.range_push('Evaluation')
             PSNRs_test = evaluation(test_dataset,tensorf, args, renderer, f'{logfolder}/imgs_vis/', N_vis=args.N_vis,
                                     prtx=f'{iteration:06d}_', N_samples=nSamples, white_bg = white_bg, ndc_ray=ndc_ray, compute_extra_metrics=False)
+            nvtx.range_pop()
             summary_writer.add_scalar('test/psnr', np.mean(PSNRs_test), global_step=iteration)
 
 
@@ -280,14 +288,18 @@ def reconstruction(args):
     if args.render_train:
         os.makedirs(f'{logfolder}/imgs_train_all', exist_ok=True)
         train_dataset = dataset(args.datadir, split='train', downsample=args.downsample_train, is_stack=True)
+        nvtx.range_push('Evaluation render train')
         PSNRs_test = evaluation(train_dataset,tensorf, args, renderer, f'{logfolder}/imgs_train_all/',
                                 N_vis=-1, N_samples=-1, white_bg = white_bg, ndc_ray=ndc_ray,device=device)
+        nvtx.range_pop()
         print(f'======> {args.expname} test all psnr: {np.mean(PSNRs_test)} <========================')
 
     if args.render_test:
         os.makedirs(f'{logfolder}/imgs_test_all', exist_ok=True)
+        nvtx.range_push('Evaluation render test')
         PSNRs_test = evaluation(test_dataset,tensorf, args, renderer, f'{logfolder}/imgs_test_all/',
                                 N_vis=-1, N_samples=-1, white_bg = white_bg, ndc_ray=ndc_ray,device=device)
+        nvtx.range_pop()
         summary_writer.add_scalar('test/psnr_all', np.mean(PSNRs_test), global_step=iteration)
         print(f'======> {args.expname} test all psnr: {np.mean(PSNRs_test)} <========================')
 
