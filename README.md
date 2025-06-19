@@ -55,7 +55,7 @@ dimension;
 More options refer to the `opt.py`. 
 
 ### For pretrained checkpoints and results please see:
-[https://1drv.ms/u/s!Ard0t_p4QWIMgQ2qSEAs7MUk8hVw?e=dc6hBm](https://1drv.ms/u/s!Ard0t_p4QWIMgQ2qSEAs7MUk8hVw?e=dc6hBm)
+[https://1drv.ms/f/c/0c624178fab774b7/Erd0t_p4QWIggAyNAAAAAAABOgUbwHB19U4y6Rwvn_Oc-Q?e=UgiBeT](https://1drv.ms/f/c/0c624178fab774b7/Erd0t_p4QWIggAyNAAAAAAABOgUbwHB19U4y6Rwvn_Oc-Q?e=UgiBeT)
 
 
 
