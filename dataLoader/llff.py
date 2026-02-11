@@ -41,10 +41,10 @@ def average_poses(poses):
     y_ = poses[..., 1].mean(0)  # (3)
 
     # 4. Compute the x axis
-    x = normalize(np.cross(z, y_))  # (3)
+    x = normalize(np.cross(y_, z))  # (3)
 
     # 5. Compute the y axis (as z and x are normalized, y is already of norm 1)
-    y = np.cross(x, z)  # (3)
+    y = np.cross(z, x)  # (3)
 
     pose_avg = np.stack([x, y, z, center], 1)  # (3, 4)
 
