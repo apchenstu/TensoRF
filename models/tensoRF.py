@@ -132,7 +132,7 @@ class TensorVM(TensorBase):
         plane_coef = F.interpolate(self.plane_coef.detach().data, scale_factor=scale, mode='bilinear',align_corners=True)
         line_coef  = F.interpolate(self.line_coef.detach().data, size=(res_target[0],1), mode='bilinear',align_corners=True)
         self.plane_coef, self.line_coef = torch.nn.Parameter(plane_coef), torch.nn.Parameter(line_coef)
-        self.compute_stepSize(res_target)
+        self.update_stepSize(res_target)
         print(f'upsamping to {res_target}')
 
 
